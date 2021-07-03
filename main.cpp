@@ -275,7 +275,6 @@ void populate_adj_and_weight_hr(bool** adj_mat, int** weight_mat, int size_graph
 std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int s) {
     std::vector<node> rs_S;
     const int inf = 3e+8;
-    int size = edges.size();
 
     //Set index map
     int* index_map = new int[n+1];
@@ -306,7 +305,7 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
     populate_adj_and_weight_hr(adj_mat, weight_mat, n, edges, s);
 
     //Perform Dijkstra's algorithm
-    int* index_map_heap = new int[size+1];
+    int* index_map_heap = new int[n+1];
     int heap_size = sh_path_tree.get_heap_size();
 
     while(heap_size > 0) {
