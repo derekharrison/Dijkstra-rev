@@ -290,7 +290,7 @@ void populate_adj_and_weight_hr(bool** adj_mat, int** weight_mat, int size_graph
     }
 }
 
-std::vector<int> shortestReach(int n, std::vector<std::vector<int>> edges, int s) {
+std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int s) {
     std::vector<node> rs_S;
     const int inf = 3e+8;
     int size = edges.size();
@@ -382,74 +382,15 @@ std::vector<int> shortestReach(int n, std::vector<std::vector<int>> edges, int s
 
 int main(int argc, char* argv[])
 {
-    int num_testcases;
-    int num_vertices;
-    int num_edges;
-
-    const char* file_name = "testcases.txt";
-    FILE* file = fopen(file_name, "r");
-
-    fscanf(file, "%d", &num_testcases);
-    std::vector<std::vector<int>> all_edges[num_testcases];
-    std::vector<int> start_vertex_array;
-
-    for(int all_edge_index = 0; all_edge_index < num_testcases; ++all_edge_index) {
-
-        fscanf(file, "%d %d", &num_vertices, &num_edges);
-        for(int i = 0; i < num_edges; ++i) {
-            int start;
-            int end;
-            int weight;
-            fscanf(file, "%d %d %d", &start, &end, &weight);
-            all_edges[all_edge_index].push_back({start, end, weight});
-        }
-        int start_vertex;
-        fscanf(file, "%d", &start_vertex);
-        start_vertex_array.push_back(start_vertex);
-    }
-
-    fclose(file);
-
-    /* Create edges */
-    int test_case_number = 2;
+    int s = 2; //Start vertex must be greater or egual to 1
+    int n = 5; //Number of vertices
 
     std::vector<std::vector<int>> edges;
-    int number_of_edges = all_edges[test_case_number].size();
-    int num_of_vertices = -3e+8;
-    for(int i = 0; i < number_of_edges; ++i) {
-        int start = all_edges[test_case_number][i][0];
-        if(start > num_of_vertices) { num_of_vertices = start; }
-        int end = all_edges[test_case_number][i][1];
-        if(end > num_of_vertices) { num_of_vertices = end; }
-        int weight = all_edges[test_case_number][i][2];
-        edges.push_back({start, end, weight});
-    }
+    edges.push_back({1, 2, 10});
+    edges.push_back({1, 3, 6});
+    edges.push_back({2, 4, 8});
 
-    /* Read data from file */
-    std::vector<int> result_ref;
-    const char* file_name_ref = "test_case_ref_3.txt";
-    FILE* file_ref = fopen(file_name_ref, "r");
-    while (!feof (file_ref)) {
-        int val;
-        fscanf (file_ref, "%d", &val);
-        result_ref.push_back(val);
-    }
-    fclose(file_ref);
-
-    int s = start_vertex_array[test_case_number];//Start vertex must be greater or egual to 1
-    int n = num_of_vertices;
-
-//    std::vector<std::vector<int>> edges;
-//    edges.push_back({1, 2, 24});
-//    edges.push_back({1, 4, 20});
-//    edges.push_back({3, 1, 3});
-//    edges.push_back({4, 3, 12});
-
-//    edges.push_back({1, 2, 10});
-//    edges.push_back({1, 3, 6});
-//    edges.push_back({2, 4, 8});
-
-    std::vector<int> results = shortestReach(n, edges, s);
+    std::vector<int> results = shortest_reach(n, edges, s);
 
     int size_results = results.size();
     for(int i = 0; i < size_results; ++i) {
@@ -457,21 +398,6 @@ int main(int argc, char* argv[])
     }
 
     std::cout << std::endl;
-
-    int size_test_case_ref = result_ref.size();
-    for(int i = 0; i < size_test_case_ref; ++i) {
-        std::cout << result_ref[i] << " ";
-    }
-    std::cout << std::endl;
-
-    bool results_are_the_same = true;
-    for(int i = 0; i < size_results; ++i) {
-    	if(results[i] != result_ref[i]) {
-    		results_are_the_same = false;
-    	}
-    }
-
-    std::cout << "results are the same is: " << results_are_the_same << std::endl;
     std::cout << "done" << std::endl;
 
     return 0;
