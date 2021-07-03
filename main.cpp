@@ -24,7 +24,6 @@ class Heap {
 private:
     int heap_size;
     node* A;
-    node** A_tracker;
 
 public:
     Heap(int size);
@@ -49,7 +48,6 @@ public:
 Heap::Heap(int size) {
     this->heap_size = size;
     this->A = new node[size+1];
-    this->A_tracker = new node*[size+1];
 }
 
 Heap::~Heap() {
