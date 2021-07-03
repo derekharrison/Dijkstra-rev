@@ -34,7 +34,6 @@ public:
     int get_heap_size();
     node heap_extract_min();
     node* get_heap_element(int index);
-    node* get_element(int index);
     int get_root_index();
 
     int parent(int i);
@@ -51,10 +50,6 @@ Heap::Heap(int size) {
     this->heap_size = size;
     this->A = new node[size+1];
     this->A_tracker = new node*[size+1];
-
-    for(int i = 0; i < size + 1; ++i) {
-        this->A_tracker[i] = &this->A[i];
-    }
 }
 
 Heap::~Heap() {
@@ -85,10 +80,6 @@ node* Heap::get_heap_element(int index) {
     return &this->A[index];
 }
 
-node* Heap::get_element(int index) {
-    return this->A_tracker[index];
-}
-
 int Heap::get_root_index() {
     return this->A[1].index;
 }
@@ -110,9 +101,6 @@ void Heap::min_heapify(node A[], int i) {
         node dummy;
         dummy = A[i];
 
-        this->A_tracker[smallest] = &A[i];
-        this->A_tracker[i] = &A[smallest];
-
         A[i] = A[smallest];
         A[smallest] = dummy;
 
@@ -129,10 +117,6 @@ void Heap::build_min_heap() {
 void Heap::set_heap(node B[]) {
     for(int i = 1; i < this->heap_size + 1; ++i) {
         this->A[i] = B[i-1];
-    }
-
-    for(int i = 0; i < this->heap_size + 1; ++i) {
-        this->A_tracker[i] = &this->A[i];
     }
 }
 
