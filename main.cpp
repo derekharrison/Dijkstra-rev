@@ -268,14 +268,14 @@ void populate_adj_and_weight_hr(bool** adj_mat, int** weight_mat, int size_graph
     //Determine lowest weight
     for(int i = 0; i < size_graph + 1; ++i) {
         for(int j = 0; j < size_graph + 1; ++j) {
-        	if(elem_is_set[i][j] && elem_is_set[j][i]) {
-        		if(weight_mat[i][j] < weight_mat[j][i]) {
-        			weight_mat[j][i] = weight_mat[i][j];
-        		}
-        		else {
-        			weight_mat[i][j] = weight_mat[j][i];
-        		}
-        	}
+            if(elem_is_set[i][j] && elem_is_set[j][i]) {
+                if(weight_mat[i][j] < weight_mat[j][i]) {
+                    weight_mat[j][i] = weight_mat[i][j];
+                }
+                else {
+                    weight_mat[i][j] = weight_mat[j][i];
+                }
+            }
         }
     }
 
@@ -372,9 +372,9 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
 
     //Set unreachable vertices to -1
     for(int i = 0; i < size_results; ++i) {
-    	if(rs_S_reordered[i] == inf) {
-    		rs_S_reordered[i] = -1;
-    	}
+        if(rs_S_reordered[i] == inf) {
+            rs_S_reordered[i] = -1;
+        }
     }
 
     return rs_S_reordered;
