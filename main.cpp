@@ -305,7 +305,6 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
     populate_adj_and_weight_hr(adj_mat, weight_mat, n, edges, s);
 
     //Perform Dijkstra's algorithm
-    int* index_map_heap = new int[n+1];
     int heap_size = sh_path_tree.get_heap_size();
 
     while(heap_size > 0) {
@@ -314,13 +313,6 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
         heap_size = sh_path_tree.get_heap_size();
 
         int row_index = node_extract.index;
-
-        //Compute index map heap
-        for(int i = 1; i <= heap_size; ++i) {
-            node* element = sh_path_tree.get_heap_element(i);
-            int index = element->index;
-            index_map_heap[index] = i;
-        }
 
         for(int it = 1; it <= heap_size; ++it) {
 
