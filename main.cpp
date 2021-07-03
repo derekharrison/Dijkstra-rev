@@ -17,7 +17,6 @@ typedef struct Node {
     int index_og;
     int index;
     Node* pi;
-    Node* next = NULL;
 } node;
 
 class Heap {
@@ -42,7 +41,6 @@ public:
     void build_min_heap();
     bool min_heap_verify();
     void print_heap();
-    void relax(node* u, int u_index, node* v, int v_index, int** w);
 };
 
 Heap::Heap(int size) {
