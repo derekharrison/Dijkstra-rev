@@ -382,7 +382,7 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
 
 int main(int argc, char* argv[])
 {
-    int s = 2; //Start vertex must be greater or egual to 1
+    int s = 2; //Start vertex must be greater or equal to 1
     int n = 5; //Number of vertices
 
     std::vector<std::vector<int>> edges;
