@@ -234,14 +234,6 @@ int** int2D(const int size) {
     return p;
 }
 
-void init_adj_and_weight(int** adj_mat, int** weight_mat, int size_graph) {
-    for(int i = 0; i < size_graph; ++i)
-        for(int j = i; j < size_graph; ++j) {
-            adj_mat[i][j] = adj_mat[j][i] = false;
-//            weight_mat[i][j] = weight_mat[j][i] = 0;
-        }
-}
-
 void set_index_map(int size_graph, int* index_map, int* index_map_inverse, int s) {
     index_map[0] = index_map_inverse[0] = 0; //Point to zero for unused element
 
@@ -259,8 +251,6 @@ void set_index_map(int size_graph, int* index_map, int* index_map_inverse, int s
 }
 
 void populate_adj_and_weight_hr(int** adj_mat, int** weight_mat, int size_graph, std::vector<std::vector<int>> edges, int s) {
-
-//    init_adj_and_weight(adj_mat, weight_mat, size_graph + 1);
 
     int** elem_is_set = int2D(size_graph + 1);
 
