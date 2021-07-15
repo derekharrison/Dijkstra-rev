@@ -10,8 +10,10 @@
 #include <iostream>
 #include <time.h>
 #include <vector>
+#include <math.h>
 
 int* element_map;
+int op_counter = 0;
 
 typedef struct Node {
     int key;
@@ -202,6 +204,8 @@ void Heap::heap_decrease_key(int index, double key) {
             this->A[parent(index)] = dummy;
 
             index = parent(index);
+
+            op_counter++;
         }
     }
 }
@@ -234,6 +238,23 @@ int** int2D(const int size) {
     return p;
 }
 
+int** vec2D(int n, int p) {
+    int** f = new int*[n];
+
+    for(int i = 0; i < n; ++i)
+        f[i] = new int[p];
+
+    return f;
+}
+
+void init_adj_and_weight(int** adj_mat, int** weight_mat, int size_graph) {
+    for(int i = 0; i < size_graph; ++i)
+        for(int j = i; j < size_graph; ++j) {
+            adj_mat[i][j] = adj_mat[j][i] = false;
+            weight_mat[i][j] = weight_mat[j][i] = 0;
+        }
+}
+
 void set_index_map(int size_graph, int* index_map, int* index_map_inverse, int s) {
     index_map[0] = index_map_inverse[0] = 0; //Point to zero for unused element
 
@@ -259,23 +280,16 @@ void populate_adj_and_weight_hr(int** adj_mat, int** weight_mat, int size_graph,
     set_index_map(size_graph, index_map, index_map_inverse, s);
 
     int num_edges = edges.size();
-    std::vector<std::vector<int>> edges_ordered;
     for(int i = 0; i < num_edges; ++i) {
         int start = index_map[edges[i][0]];
         int end = index_map[edges[i][1]];
         int weight = edges[i][2];
-        edges_ordered.push_back({start, end, weight});
-    }
-
-    for(int i = 0; i < num_edges; ++i) {
-        int start = edges_ordered[i][0];
-        int end = edges_ordered[i][1];
         if(elem_is_set[start][end] != 2) {
-            weight_mat[start][end] = weight_mat[end][start] = edges_ordered[i][2];
+            weight_mat[start][end] = weight_mat[end][start] = weight;
             elem_is_set[start][end] = elem_is_set[end][start] = 2;
         }
-        else if(elem_is_set[start][end] == 2 && weight_mat[start][end] >= edges_ordered[i][2]) {
-            weight_mat[start][end] = weight_mat[end][start] = edges_ordered[i][2];
+        else if(elem_is_set[start][end] == 2 && weight_mat[start][end] >= weight) {
+            weight_mat[start][end] = weight_mat[end][start] = weight;
         }
         adj_mat[start][end] = adj_mat[end][start] = 2;
     }
@@ -295,16 +309,6 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
         index_map_end[i] = 0;
     }
 
-    //Create edges
-    int num_edges = edges.size();
-    std::vector<std::vector<int>> edges_reordered;
-    for(int i = 0; i < num_edges; ++i) {
-        int start_index = edges[i][0];
-        int end_index = edges[i][1];
-        int weight = edges[i][2];
-        edges_reordered.push_back({index_map[start_index], index_map[end_index], weight});
-    }
-
     //Initialize heap
     node* heap_init = new node[n + 1];
     for(int i = 1; i < n + 1; ++i) {
@@ -317,11 +321,15 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
     heap_init[1].key = 0;
     heap_init[1].d = 0;
 
+    int num_edges = edges.size();
     for(int i = 0; i < num_edges; ++i) {
-        int start_index = edges_reordered[i][0];
-        int end_index = edges_reordered[i][1];
-        heap_init[start_index].adj_nodes.push_back(end_index);
-        heap_init[end_index].adj_nodes.push_back(start_index);
+        int start_index = edges[i][0];
+        int end_index = edges[i][1];
+
+        int start_index_reordered = index_map[start_index];
+        int end_index_reordered = index_map[end_index];
+        heap_init[start_index_reordered].adj_nodes.push_back(end_index_reordered);
+        heap_init[end_index_reordered].adj_nodes.push_back(start_index_reordered);
     }
 
     //Set heap and build heap
@@ -348,8 +356,7 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
         int num_adj_nodes = u->adj_nodes.size();
 
         for(int i = 0; i < num_adj_nodes; ++i) {
-            std::vector<int> adj_nodes = u->adj_nodes;
-            int it = element_map[adj_nodes[i]];
+            int it = element_map[node_extract.adj_nodes[i]];
             node* v = sh_path_tree.get_heap_element(it);
             int v_index = v->index;
 
@@ -387,21 +394,28 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
 int main(int argc, char* argv[])
 {
     int s = 2; //Start vertex must be greater or equal to 1
-    int n = 5; //Number of vertices
+    int n = 249; //Number of vertices
 
+    //Create edges
+    int num_edges = 312500;
     std::vector<std::vector<int>> edges;
-    edges.push_back({1, 2, 10});
-    edges.push_back({1, 3, 6});
-    edges.push_back({2, 4, 8});
+    for(int i = 0; i < num_edges; ++i) {
+        int start_vert = rand() % n + 1;
+        int end_vert = rand() % n + 1;
+        int weight = rand() % 200 + 1;
+        edges.push_back({start_vert, end_vert, weight});
+    }
 
+    //Compute distances to nodes from start vertex
     std::vector<int> results = shortest_reach(n, edges, s);
 
     int size_results = results.size();
     for(int i = 0; i < size_results; ++i) {
         std::cout << results[i] << " ";
     }
-
     std::cout << std::endl;
+
+    std::cout << "number of operations: " << op_counter << std::endl;
     std::cout << "done" << std::endl;
 
     return 0;
