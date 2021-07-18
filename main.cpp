@@ -13,7 +13,6 @@
 #include <math.h>
 
 int* element_map;
-int op_counter = 0;
 
 typedef struct Node {
     int key;
@@ -204,8 +203,6 @@ void Heap::heap_decrease_key(int index, double key) {
             this->A[parent(index)] = dummy;
 
             index = parent(index);
-
-            op_counter++;
         }
     }
 }
@@ -360,6 +357,8 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
             node* v = sh_path_tree.get_heap_element(it);
             int v_index = v->index;
 
+            //Extracted nodes point to 1, and 1 may not necessarily be an adjacent node
+            //Therefore adjacency must be verified with adj_mat
             if(adj_mat[row_index][v_index] == 2) {
                 relax(u, row_index, v, v_index, weight_mat, &sh_path_tree, it);
             }
@@ -394,7 +393,7 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
 int main(int argc, char* argv[])
 {
     int s = 2; //Start vertex must be greater or equal to 1
-    int n = 249; //Number of vertices
+    int n = 2499; //Number of vertices
 
     //Create edges
     int num_edges = 312500;
@@ -409,13 +408,13 @@ int main(int argc, char* argv[])
     //Compute distances to nodes from start vertex
     std::vector<int> results = shortest_reach(n, edges, s);
 
+    //Print results
     int size_results = results.size();
     for(int i = 0; i < size_results; ++i) {
         std::cout << results[i] << " ";
     }
-    std::cout << std::endl;
 
-    std::cout << "number of operations: " << op_counter << std::endl;
+    std::cout << std::endl;
     std::cout << "done" << std::endl;
 
     return 0;
