@@ -60,7 +60,7 @@ Heap::Heap(int size) {
 
     this->element_map[0] = 0;
     for(int i = 1; i <= this->heap_size; ++i) {
-    	this->element_map[i] = i;
+        this->element_map[i] = i;
     }
 }
 
@@ -81,13 +81,13 @@ int Heap::right(int i) {
 }
 
 node* Heap::get_heap_element(int node_index) {
-	int index_in_heap = this->element_map[node_index];
+    int index_in_heap = this->element_map[node_index];
     return &this->A[index_in_heap];
 }
 
 int Heap::get_heap_index(int node_index) {
-	int index_in_heap = this->element_map[node_index];
-	return index_in_heap;
+    int index_in_heap = this->element_map[node_index];
+    return index_in_heap;
 }
 
 int Heap::get_root_index() {
@@ -200,8 +200,8 @@ void Heap::heap_decrease_key(int index, double key) {
         this->A[index].key = key;
         while(index > 1 && this->A[parent(index)].key > this->A[index].key) {
 
-        	this->element_map[this->A[index].index] = parent(index);
-        	this->element_map[this->A[parent(index)].index] = index;
+            this->element_map[this->A[index].index] = parent(index);
+            this->element_map[this->A[parent(index)].index] = index;
 
             node dummy = this->A[index];
             this->A[index] = this->A[parent(index)];
@@ -213,7 +213,7 @@ void Heap::heap_decrease_key(int index, double key) {
 }
 
 void relax(node* u, node* v, int** w, Heap* heap) {
-	int index_in_heap = heap->get_heap_index(v->index);
+    int index_in_heap = heap->get_heap_index(v->index);
     if(v->key > u->key + w[u->index][v->index]) {
         int weight = u->key + w[u->index][v->index];
         heap->heap_decrease_key(index_in_heap, weight);
