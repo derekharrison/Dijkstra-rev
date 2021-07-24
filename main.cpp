@@ -12,14 +12,11 @@
 #include <vector>
 #include <math.h>
 
-int* element_map;
-
 typedef struct Node {
     int key;
     int d;
     int index_og;
     int index;
-    int parent_index;
     Node* pi;
     std::vector<int> adj_nodes;
 } node;
@@ -29,6 +26,7 @@ private:
     int heap_size;
     int size_array;
     node* A;
+    int* element_map;
 
     const int inf = 3e+8;
 
@@ -43,6 +41,7 @@ public:
     node* get_heap_element(int index);
     int get_root_index();
     void print_element_map();
+    int get_heap_index(int index);
 
     int parent(int i);
     int left(int i);
@@ -56,12 +55,12 @@ public:
 Heap::Heap(int size) {
     this->heap_size = size;
     this->A = new node[size+1];
-    element_map = new int[size+1];
+    this->element_map = new int[size+1];
     this->size_array = size + 1;
 
-    element_map[0] = 0;
+    this->element_map[0] = 0;
     for(int i = 1; i <= this->heap_size; ++i) {
-        element_map[i] = i;
+    	this->element_map[i] = i;
     }
 }
 
@@ -81,8 +80,14 @@ int Heap::right(int i) {
     return 2*i + 1;
 }
 
-node* Heap::get_heap_element(int index) {
-    return &this->A[index];
+node* Heap::get_heap_element(int node_index) {
+	int index_in_heap = this->element_map[node_index];
+    return &this->A[index_in_heap];
+}
+
+int Heap::get_heap_index(int node_index) {
+	int index_in_heap = this->element_map[node_index];
+	return index_in_heap;
 }
 
 int Heap::get_root_index() {
@@ -106,8 +111,8 @@ void Heap::min_heapify(node A[], int i) {
         node dummy;
         dummy = A[i];
 
-        element_map[A[smallest].index] = i;
-        element_map[A[i].index] = smallest;
+        this->element_map[A[smallest].index] = i;
+        this->element_map[A[i].index] = smallest;
 
         A[i] = A[smallest];
         A[smallest] = dummy;
@@ -165,7 +170,7 @@ void Heap::print_heap() {
 
 void Heap::print_element_map() {
     for(int i = 1; i <= this->heap_size; ++i) {
-        int index_loc = element_map[i];
+        int index_loc = this->element_map[i];
         std::cout << "index: " << i << ", A[index].index: " << this->A[index_loc].index
                   << ", key: " << this->A[index_loc].key << ", i: " << i << std::endl;
     }
@@ -178,7 +183,7 @@ node Heap::heap_extract_min() {
     }
     node min = this->A[1];
 
-    element_map[this->A[this->heap_size].index] = 1;
+    this->element_map[this->A[this->heap_size].index] = 1;
     this->A[1] = this->A[this->heap_size];
     this->heap_size = this->heap_size - 1;
 
@@ -195,8 +200,8 @@ void Heap::heap_decrease_key(int index, double key) {
         this->A[index].key = key;
         while(index > 1 && this->A[parent(index)].key > this->A[index].key) {
 
-            element_map[this->A[index].index] = parent(index);
-            element_map[this->A[parent(index)].index] = index;
+        	this->element_map[this->A[index].index] = parent(index);
+        	this->element_map[this->A[parent(index)].index] = index;
 
             node dummy = this->A[index];
             this->A[index] = this->A[parent(index)];
@@ -207,9 +212,10 @@ void Heap::heap_decrease_key(int index, double key) {
     }
 }
 
-void relax(node* u, int u_index, node* v, int v_index, int** w, Heap* heap, int index_in_heap) {
-    if(v->key > u->key + w[u_index][v_index]) {
-        int weight = u->key + w[u_index][v_index];
+void relax(node* u, node* v, int** w, Heap* heap) {
+	int index_in_heap = heap->get_heap_index(v->index);
+    if(v->key > u->key + w[u->index][v->index]) {
+        int weight = u->key + w[u->index][v->index];
         heap->heap_decrease_key(index_in_heap, weight);
 
         v->pi = u;
@@ -353,14 +359,14 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
         int num_adj_nodes = u->adj_nodes.size();
 
         for(int i = 0; i < num_adj_nodes; ++i) {
-            int it = element_map[node_extract.adj_nodes[i]];
+            int it = node_extract.adj_nodes[i];
             node* v = sh_path_tree.get_heap_element(it);
             int v_index = v->index;
 
             //Extracted nodes always point to node 1 in the heap, and the node at 1 may not be an adjacent node
             //Therefore adjacency must be verified with adj_mat
             if(adj_mat[row_index][v_index] == 2) {
-                relax(u, row_index, v, v_index, weight_mat, &sh_path_tree, it);
+                relax(u, v, weight_mat, &sh_path_tree);
             }
         }
 
