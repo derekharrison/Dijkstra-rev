@@ -355,7 +355,7 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
         node* u = &node_extract;
         heap_size = sh_path_tree.get_heap_size();
 
-        int row_index = node_extract.index;
+        int u_index = node_extract.index;
         int num_adj_nodes = u->adj_nodes.size();
 
         for(int i = 0; i < num_adj_nodes; ++i) {
@@ -365,7 +365,7 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
 
             //Extracted nodes always point to node 1 in the heap, and the node at 1 may not be an adjacent node
             //Therefore adjacency must be verified with adj_mat
-            if(adj_mat[row_index][v_index] == 2) {
+            if(adj_mat[u_index][v_index] == 2) {
                 relax(u, v, weight_mat, &sh_path_tree);
             }
         }
