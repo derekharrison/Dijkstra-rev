@@ -378,8 +378,8 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
     for(int i = 1; i <= size_results; ++i) {
         int j = index_map_end[i];
         if(rs_S[j].index_og != s) {
-        	int key = rs_S[j].key;
-        	if(key == INF) { key = -1; }
+            int key = rs_S[j].key;
+            if(key == INF) { key = -1; }
             rs_S_reordered.push_back(key);
         }
     }
