@@ -378,14 +378,9 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
     for(int i = 1; i <= size_results; ++i) {
         int j = index_map_end[i];
         if(rs_S[j].index_og != s) {
-            rs_S_reordered.push_back(rs_S[j].key);
-        }
-    }
-
-    //Set unreachable vertices to -1
-    for(int i = 0; i < size_results; ++i) {
-        if(rs_S_reordered[i] == SETVAR) {
-            rs_S_reordered[i] = -1;
+        	int key = rs_S[j].key;
+        	if(key == INF) { key = -1; }
+            rs_S_reordered.push_back(key);
         }
     }
 
