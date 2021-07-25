@@ -12,7 +12,8 @@
 #include <vector>
 #include <math.h>
 
-const int inf = 3e+8;
+const int INF = 3e+8;
+const int SETVAR = 31415926;
 
 typedef struct Node {
     int key;
@@ -284,14 +285,14 @@ void populate_adj_and_weight_hr(int** adj_mat, int** weight_mat, int size_graph,
         int start = index_map[edges[i][0]];
         int end = index_map[edges[i][1]];
         int weight = edges[i][2];
-        if(elem_is_set[start][end] != 2) {
+        if(elem_is_set[start][end] != SETVAR) {
             weight_mat[start][end] = weight_mat[end][start] = weight;
-            elem_is_set[start][end] = elem_is_set[end][start] = 2;
+            elem_is_set[start][end] = elem_is_set[end][start] = SETVAR;
         }
-        else if(elem_is_set[start][end] == 2 && weight_mat[start][end] >= weight) {
+        else if(elem_is_set[start][end] == SETVAR && weight_mat[start][end] >= weight) {
             weight_mat[start][end] = weight_mat[end][start] = weight;
         }
-        adj_mat[start][end] = adj_mat[end][start] = 2;
+        adj_mat[start][end] = adj_mat[end][start] = SETVAR;
     }
 }
 
@@ -312,7 +313,7 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
     //Initialize heap
     node* heap_init = new node[n + 1];
     for(int i = 1; i < n + 1; ++i) {
-        heap_init[i].key = inf;
+        heap_init[i].key = INF;
         heap_init[i].pi = NULL;
         heap_init[i].index = i;
         heap_init[i].index_og = index_map_inverse[i];
@@ -360,7 +361,7 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
 
             //Extracted nodes always point to node 1 in the heap, and the node at 1 may not be an adjacent node
             //Therefore adjacency must be verified with adj_mat
-            if(adj_mat[u_index][v_index] == 2) {
+            if(adj_mat[u_index][v_index] == SETVAR) {
                 relax(u, v, weight_mat, &sh_path_tree);
             }
         }
@@ -383,7 +384,7 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
 
     //Set unreachable vertices to -1
     for(int i = 0; i < size_results; ++i) {
-        if(rs_S_reordered[i] == inf) {
+        if(rs_S_reordered[i] == SETVAR) {
             rs_S_reordered[i] = -1;
         }
     }
