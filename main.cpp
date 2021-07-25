@@ -12,9 +12,10 @@
 #include <vector>
 #include <math.h>
 
+const int inf = 3e+8;
+
 typedef struct Node {
     int key;
-    int d;
     int index_og;
     int index;
     Node* pi;
@@ -27,8 +28,6 @@ private:
     int size_array;
     node* A;
     int* element_map;
-
-    const int inf = 3e+8;
 
 public:
     Heap(int size);
@@ -217,9 +216,7 @@ void relax(node* u, node* v, int** w, Heap* heap) {
     if(v->key > u->key + w[u->index][v->index]) {
         int weight = u->key + w[u->index][v->index];
         heap->heap_decrease_key(index_in_heap, weight);
-
         v->pi = u;
-        v->d = weight;
     }
 }
 
@@ -299,10 +296,10 @@ void populate_adj_and_weight_hr(int** adj_mat, int** weight_mat, int size_graph,
 }
 
 std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int s) {
-    std::vector<node> rs_S;
-    const int inf = 3e+8;
 
-    //Set index map
+    std::vector<node> rs_S;
+
+    //Set index maps
     int* index_map = new int[n+1];
     int* index_map_inverse = new int[n+1];
     set_index_map(n, index_map, index_map_inverse, s);
@@ -317,12 +314,10 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
     for(int i = 1; i < n + 1; ++i) {
         heap_init[i].key = inf;
         heap_init[i].pi = NULL;
-        heap_init[i].d = inf;
         heap_init[i].index = i;
         heap_init[i].index_og = index_map_inverse[i];
     }
     heap_init[1].key = 0;
-    heap_init[1].d = 0;
 
     int num_edges = edges.size();
     for(int i = 0; i < num_edges; ++i) {
