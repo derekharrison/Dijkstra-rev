@@ -27,7 +27,7 @@ class Heap {
 private:
     int heap_size;
     int size_array;
-    node* A;
+    node** A;
     int* element_map;
 
 public:
@@ -36,7 +36,7 @@ public:
     void set_heap(node B[]);
     void get_heap(node B[]);
     int get_heap_size();
-    node heap_extract_min();
+    node* heap_extract_min();
     void heap_decrease_key(int index, double key);
     node* get_heap_element(int index);
     int get_root_index();
@@ -46,26 +46,33 @@ public:
     int parent(int i);
     int left(int i);
     int right(int i);
-    void min_heapify(node A[], int i);
+    void min_heapify(node* A[], int i);
     void build_min_heap();
     bool min_heap_verify();
     void print_heap();
 };
 
 Heap::Heap(int size) {
-    this->heap_size = size;
-    this->A = new node[size+1];
-    this->element_map = new int[size+1];
-    this->size_array = size + 1;
+    heap_size = size;
+    A = new node*[size+1];
+    element_map = new int[size+1];
+    size_array = size + 1;
 
-    this->element_map[0] = 0;
-    for(int i = 1; i <= this->heap_size; ++i) {
-        this->element_map[i] = i;
+    element_map[0] = 0;
+    for(int i = 1; i <= heap_size; ++i) {
+        element_map[i] = i;
+        A[i] = new node;
+        A[i]->pi = NULL;
     }
 }
 
 Heap::~Heap() {
-    delete [] this->A;
+    for(int i = 1; i <= heap_size; ++i) {
+        delete A[i];
+    }
+
+    delete [] A;
+    delete [] element_map;
 }
 
 int Heap::parent(int i) {
@@ -81,38 +88,38 @@ int Heap::right(int i) {
 }
 
 node* Heap::get_heap_element(int node_index) {
-    int index_in_heap = this->element_map[node_index];
-    return &this->A[index_in_heap];
+    int index_in_heap = element_map[node_index];
+    return A[index_in_heap];
 }
 
 int Heap::get_heap_index(int node_index) {
-    int index_in_heap = this->element_map[node_index];
+    int index_in_heap = element_map[node_index];
     return index_in_heap;
 }
 
 int Heap::get_root_index() {
-    return this->A[1].index;
+    return A[1]->index;
 }
 
-void Heap::min_heapify(node A[], int i) {
+void Heap::min_heapify(node* A[], int i) {
     int l, r, smallest;
     l = Heap::left(i);
     r = Heap::right(i);
-    if(l < this->heap_size + 1 && A[l].key < A[i].key) {
+    if(l < heap_size + 1 && A[l]->key < A[i]->key) {
         smallest = l;
     }
     else {
         smallest = i;
     }
-    if(r < this->heap_size + 1 && A[r].key < A[smallest].key) {
+    if(r < heap_size + 1 && A[r]->key < A[smallest]->key) {
         smallest = r;
     }
     if(smallest != i) {
-        node dummy;
+        node* dummy;
         dummy = A[i];
 
-        this->element_map[A[smallest].index] = i;
-        this->element_map[A[i].index] = smallest;
+        element_map[A[smallest]->index] = i;
+        element_map[A[i]->index] = smallest;
 
         A[i] = A[smallest];
         A[smallest] = dummy;
@@ -122,34 +129,28 @@ void Heap::min_heapify(node A[], int i) {
 }
 
 void Heap::build_min_heap() {
-    for(int i = this->heap_size/2; i > 0; --i) {
-        Heap::min_heapify(this->A, i);
+    for(int i = heap_size/2; i > 0; --i) {
+        Heap::min_heapify(A, i);
     }
 }
 
 void Heap::set_heap(node B[]) {
-    for(int i = 1; i < this->heap_size + 1; ++i) {
-        this->A[i] = B[i];
-    }
-}
-
-void Heap::get_heap(node B[]) {
-    for(int i = 1; i < this->heap_size + 1; ++i) {
-        B[i-1] = this->A[i];
+    for(int i = 1; i < heap_size + 1; ++i) {
+        *A[i] = B[i];
     }
 }
 
 int Heap::get_heap_size() {
-    return this->heap_size;
+    return heap_size;
 }
 
 bool Heap::min_heap_verify() {
     bool is_min_heap = true;
-    for(int i = (this->heap_size - 1)/2; i > 0; --i) {
+    for(int i = (heap_size - 1)/2; i > 0; --i) {
         int l, r;
         l = Heap::left(i);
         r = Heap::right(i);
-        if(this->A[i].key > this->A[l].key || this->A[i].key > this->A[r].key) {
+        if(A[i]->key > A[l]->key || A[i]->key > A[r]->key) {
             is_min_heap = false;
         }
     }
@@ -158,54 +159,54 @@ bool Heap::min_heap_verify() {
 }
 
 void Heap::print_heap() {
-    for(int i = this->heap_size/2; i > 0; --i) {
+    for(int i = heap_size/2; i > 0; --i) {
         int l, r;
         l = Heap::left(i);
         r = Heap::right(i);
-        if(l < this->heap_size + 1 && r < this->heap_size + 1) {
-            printf("node: %i, key: %i, key left child: %i, key right child: %i\n", i, this->A[i].key,  this->A[l].key,  this->A[r].key);
+        if(l < heap_size + 1 && r < heap_size + 1) {
+            printf("node: %i, key: %i, key left child: %i, key right child: %i\n", i, A[i]->key,  A[l]->key,  A[r]->key);
         }
     }
 }
 
 void Heap::print_element_map() {
-    for(int i = 1; i <= this->heap_size; ++i) {
-        int index_loc = this->element_map[i];
-        std::cout << "index: " << i << ", A[index].index: " << this->A[index_loc].index
-                  << ", key: " << this->A[index_loc].key << ", i: " << i << std::endl;
+    for(int i = 1; i <= heap_size; ++i) {
+        int index_loc = element_map[i];
+        std::cout << "index: " << i << ", A[index]->index: " << A[index_loc]->index
+                  << ", key: " << A[index_loc]->key << ", i: " << i << std::endl;
     }
 }
 
-node Heap::heap_extract_min() {
+node* Heap::heap_extract_min() {
 
-    if(this->heap_size < 1) {
+    if(heap_size < 1) {
         std::cout << "heap size is less than 1" << std::endl;
     }
-    node min = this->A[1];
+    node* min = A[1];
 
-    this->element_map[this->A[this->heap_size].index] = 1;
-    this->A[1] = this->A[this->heap_size];
-    this->heap_size = this->heap_size - 1;
+    element_map[A[heap_size]->index] = 1;
+    A[1] = A[heap_size];
+    heap_size = heap_size - 1;
 
-    Heap::min_heapify(this->A, 1);
+    Heap::min_heapify(A, 1);
 
     return min;
 }
 
 void Heap::heap_decrease_key(int index, double key) {
-    if(key > this->A[index].key) {
+    if(key > A[index]->key) {
         printf("new key is larger than current key\n");
     }
     else {
-        this->A[index].key = key;
-        while(index > 1 && this->A[parent(index)].key > this->A[index].key) {
+        A[index]->key = key;
+        while(index > 1 && A[parent(index)]->key > A[index]->key) {
 
-            this->element_map[this->A[index].index] = parent(index);
-            this->element_map[this->A[parent(index)].index] = index;
+            element_map[A[index]->index] = parent(index);
+            element_map[A[parent(index)]->index] = index;
 
-            node dummy = this->A[index];
-            this->A[index] = this->A[parent(index)];
-            this->A[parent(index)] = dummy;
+            node* dummy = A[index];
+            A[index] = A[parent(index)];
+            A[parent(index)] = dummy;
 
             index = parent(index);
         }
@@ -239,52 +240,68 @@ int** int2D(const int size) {
     return p;
 }
 
-int** vec2D(int n, int p) {
-    int** f = new int*[n];
+void free_bool2D(bool** p, int size) {
+    for(int i = 0; i < size; ++i)
+        delete [] p[i];
 
-    for(int i = 0; i < n; ++i)
-        f[i] = new int[p];
-
-    return f;
+    delete [] p;
 }
 
-void init_adj_and_weight(int** adj_mat, int** weight_mat, int size_graph) {
-    for(int i = 0; i < size_graph; ++i)
-        for(int j = i; j < size_graph; ++j) {
-            adj_mat[i][j] = adj_mat[j][i] = false;
-            weight_mat[i][j] = weight_mat[j][i] = 0;
-        }
+void free_int2D(int** p, int size) {
+	for(int i = 0; i < size; ++i)
+		delete [] p[i];
+
+	delete [] p;
 }
 
-void set_index_map(int size_graph, int* index_map, int* index_map_inverse, int s) {
-    index_map[0] = index_map_inverse[0] = 0; //Point to zero for unused element
+void set_index_map(int size_graph, int* index_map, int* index_map_inverse, int* index_map_end, int s) {
+    index_map[0] = index_map_inverse[0] = index_map_end[0] = 0; //Point to zero for unused element
 
     int index_track = 1;
     for(int i = s; i <= size_graph; ++i) {
         index_map[i] = index_track;
         index_map_inverse[index_track] = i;
+        index_map_end[i] = 0;
         index_track++;
     }
     for(int i = 1; i <= s - 1; ++i) {
         index_map[i] = index_track;
         index_map_inverse[index_track] = i;
+        index_map_end[i] = 0;
         index_track++;
     }
 }
 
-void populate_adj_and_weight_hr(int** adj_mat, int** weight_mat, int size_graph, std::vector<std::vector<int>> edges, int s) {
+void populate_adj_and_weight_hr(int** adj_mat,
+                                int** weight_mat,
+                                node* heap,
+                                int size_graph,
+                                int* index_map,
+                                int* index_map_inverse,
+                                std::vector<std::vector<int>>& edges,
+                                int s) {
 
     int** elem_is_set = int2D(size_graph + 1);
 
-    int* index_map = new int[size_graph+1];
-    int* index_map_inverse = new int[size_graph+1];
-    set_index_map(size_graph, index_map, index_map_inverse, s);
+    for(int i = 1; i < size_graph + 1; ++i) {
+        heap[i].key = INF;
+        heap[i].pi = NULL;
+        heap[i].index = i;
+        heap[i].index_og = index_map_inverse[i];
+    }
+    heap[1].key = 0;
 
     int num_edges = edges.size();
     for(int i = 0; i < num_edges; ++i) {
-        int start = index_map[edges[i][0]];
-        int end = index_map[edges[i][1]];
+        int start_index = edges[i][0];
+        int end_index = edges[i][1];
         int weight = edges[i][2];
+
+        int start = index_map[start_index];
+        int end = index_map[end_index];
+        heap[start].adj_nodes.push_back(end);
+        heap[end].adj_nodes.push_back(start);
+
         if(elem_is_set[start][end] != SETVAR) {
             weight_mat[start][end] = weight_mat[end][start] = weight;
             elem_is_set[start][end] = elem_is_set[end][start] = SETVAR;
@@ -296,78 +313,53 @@ void populate_adj_and_weight_hr(int** adj_mat, int** weight_mat, int size_graph,
     }
 }
 
-std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int s) {
+std::vector<int> shortest_reach(int n, std::vector<std::vector<int>>& edges, int s) {
 
     std::vector<node> rs_S;
 
     //Set index maps
     int* index_map = new int[n+1];
     int* index_map_inverse = new int[n+1];
-    set_index_map(n, index_map, index_map_inverse, s);
-
     int* index_map_end = new int[n+1];
-    for(int i = 0; i < n + 1; ++i) {
-        index_map_end[i] = 0;
-    }
+    set_index_map(n, index_map, index_map_inverse, index_map_end, s);
 
-    //Initialize heap
-    node* heap_init = new node[n + 1];
-    for(int i = 1; i < n + 1; ++i) {
-        heap_init[i].key = INF;
-        heap_init[i].pi = NULL;
-        heap_init[i].index = i;
-        heap_init[i].index_og = index_map_inverse[i];
-    }
-    heap_init[1].key = 0;
-
-    int num_edges = edges.size();
-    for(int i = 0; i < num_edges; ++i) {
-        int start_index = edges[i][0];
-        int end_index = edges[i][1];
-
-        int start_index_reordered = index_map[start_index];
-        int end_index_reordered = index_map[end_index];
-        heap_init[start_index_reordered].adj_nodes.push_back(end_index_reordered);
-        heap_init[end_index_reordered].adj_nodes.push_back(start_index_reordered);
-    }
-
-    //Set heap and build heap
-    Heap sh_path_tree(n);
-    sh_path_tree.set_heap(heap_init);
-    sh_path_tree.build_min_heap();
-
-    //Initialize weight and adjacency matrices
+    //Initialize weight and adjacency matrices and heap
+    node* heap = new node[n + 1];
     int** adj_mat = int2D(n + 1);
     int** weight_mat = int2D(n + 1);
+    populate_adj_and_weight_hr(adj_mat, weight_mat, heap, n, index_map, index_map_inverse, edges, s);
 
-    populate_adj_and_weight_hr(adj_mat, weight_mat, n, edges, s);
+    //Set heap and build heap
+    Heap min_heap(n);
+    min_heap.set_heap(heap);
+    min_heap.build_min_heap();
 
     //Perform Dijkstra's algorithm
-    int heap_size = sh_path_tree.get_heap_size();
+    int heap_size = min_heap.get_heap_size();
     int rs_elem_counter = 0;
     while(heap_size > 0) {
 
-        node node_extract = sh_path_tree.heap_extract_min();
-        node* u = &node_extract;
-        heap_size = sh_path_tree.get_heap_size();
+        node* u = min_heap.heap_extract_min();
+        heap_size = min_heap.get_heap_size();
 
-        int u_index = node_extract.index;
+        int u_index = u->index;
         int num_adj_nodes = u->adj_nodes.size();
 
         for(int i = 0; i < num_adj_nodes; ++i) {
-            int it = node_extract.adj_nodes[i];
-            node* v = sh_path_tree.get_heap_element(it);
+            int it = u->adj_nodes[i];
+            node* v = min_heap.get_heap_element(it);
             int v_index = v->index;
 
-            //Extracted nodes always point to node 1 in the heap, and the node at 1 may not be an adjacent node
-            //Therefore adjacency must be verified with adj_mat
+            //Extracted nodes always point to node 1 in the heap,
+            //and the node at 1 may not be an adjacent node.
+            //Therefore adjacency must be verified with adj_mat.
             if(adj_mat[u_index][v_index] == SETVAR) {
-                relax(u, v, weight_mat, &sh_path_tree);
+                relax(u, v, weight_mat, &min_heap);
             }
         }
 
-        rs_S.push_back(node_extract);
-        index_map_end[node_extract.index_og] = rs_elem_counter;
+        rs_S.push_back(*u);
+        index_map_end[u->index_og] = rs_elem_counter;
         rs_elem_counter++;
     }
 
@@ -383,6 +375,15 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>> edges, int 
             rs_S_reordered.push_back(key);
         }
     }
+
+    //Deallocate memory
+    free_int2D(adj_mat, n + 1);
+    free_int2D(weight_mat, n + 1);
+
+    delete [] heap;
+    delete [] index_map;
+    delete [] index_map_inverse;
+    delete [] index_map_end;
 
     return rs_S_reordered;
 }
