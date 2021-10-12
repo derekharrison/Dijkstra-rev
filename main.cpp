@@ -28,11 +28,10 @@ private:
     int heap_size;
     int size_array;
     node** A;
+    node** heap_ref;
     int* element_map;
 
 public:
-    node** heap_ref;
-
     Heap(int size);
     ~Heap();
     void set_heap(node* B[]);
@@ -87,8 +86,7 @@ int right(int i) {
 }
 
 node* Heap::get_heap_element(int node_index) {
-    int index_in_heap = element_map[node_index];
-    return A[index_in_heap];
+    return heap_ref[node_index];
 }
 
 int Heap::get_heap_index(int node_index) {
@@ -355,7 +353,7 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>>& edges, int
         int num_adj_nodes = u->adj_nodes.size();
         for(int i = 0; i < num_adj_nodes; ++i) {
             int it = u->adj_nodes[i];
-            node* v = min_heap.heap_ref[it];
+            node* v = min_heap.get_heap_element(it);
             relax(u, v, weight_mat, &min_heap);
         }
 
