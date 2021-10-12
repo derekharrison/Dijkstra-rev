@@ -11,7 +11,7 @@
 
 int main(int argc, char* argv[])
 {
-    int s = 2; //Start vertex must be greater or equal to 1
+    int s = 2; //Start vertex. The minimum index for vertices is 1
     int n = 2499; //Number of vertices
 
     //Create edges
