@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
 {
     int s = 2; //Start vertex. The minimum index for vertices is 1
     int n = 2499; //Number of vertices
-    int num_edges = 312500; //Number of edges
+    int num_edges = 3125; //Number of edges
 
     //Create edges
     std::vector<std::vector<int>> edges;

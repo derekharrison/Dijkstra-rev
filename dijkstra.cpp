@@ -38,13 +38,13 @@ int map_inverse(int n, int index, int s) {
     return r;
 }
 
-void populate_adj_and_weight_hr(int** adj_mat,
-                                int** weight_mat,
-                                node** heap,
-                                int size_graph,
-                                std::vector<std::vector<int>>& edges,
-                                int s) {
+void set_weight_and_heap(int** weight_mat,
+                         node** heap,
+                         int size_graph,
+                         std::vector<std::vector<int>>& edges,
+                         int s) {
 
+    //Initialize heap
     for(int i = 1; i < size_graph + 1; ++i) {
         heap[i] = new node;
         heap[i]->key = INF;
@@ -54,7 +54,7 @@ void populate_adj_and_weight_hr(int** adj_mat,
     }
     heap[1]->key = 0;
 
-    //Traverse edges to set weight and adjacency matrices
+    //Traverse edges to set weight matrix and heap handles
     int num_edges = edges.size();
     for(int i = 0; i < num_edges; ++i) {
         int start_index = edges[i][0];
@@ -94,11 +94,10 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>>& edges, int
     //Set index maps
     int* index_map_end = new int[n+1];
 
-    //Initialize weight and adjacency matrices and heap
+    //Initialize weight matrix and heap
     node** heap = new node*[n + 1];
-    int** adj_mat = int2D(n + 1);
     int** weight_mat = int2D(n + 1);
-    populate_adj_and_weight_hr(adj_mat, weight_mat, heap, n, edges, s);
+    set_weight_and_heap(weight_mat, heap, n, edges, s);
 
     //Set heap and build heap
     Heap min_heap(n);
@@ -139,7 +138,6 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>>& edges, int
     }
 
     //Deallocate memory
-    free_int2D(adj_mat, n + 1);
     free_int2D(weight_mat, n + 1);
 
     delete [] heap;
