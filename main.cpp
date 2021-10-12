@@ -31,10 +31,11 @@ private:
     int* element_map;
 
 public:
+    node** heap_ref;
+
     Heap(int size);
     ~Heap();
-    void set_heap(node B[]);
-    void get_heap(node B[]);
+    void set_heap(node* B[]);
     int get_heap_size();
     node* heap_extract_min();
     void heap_decrease_key(int index, double key);
@@ -43,9 +44,6 @@ public:
     void print_element_map();
     int get_heap_index(int index);
 
-    int parent(int i);
-    int left(int i);
-    int right(int i);
     void min_heapify(node* A[], int i);
     void build_min_heap();
     bool min_heap_verify();
@@ -55,6 +53,7 @@ public:
 Heap::Heap(int size) {
     heap_size = size;
     A = new node*[size+1];
+    heap_ref = new node*[size+1];
     element_map = new int[size+1];
     size_array = size + 1;
 
@@ -75,15 +74,15 @@ Heap::~Heap() {
     delete [] element_map;
 }
 
-int Heap::parent(int i) {
+int parent(int i) {
     return i/2;
 }
 
-int Heap::left(int i) {
+int left(int i) {
     return 2*i;
 }
 
-int Heap::right(int i) {
+int right(int i) {
     return 2*i + 1;
 }
 
@@ -103,8 +102,8 @@ int Heap::get_root_index() {
 
 void Heap::min_heapify(node* A[], int i) {
     int l, r, smallest;
-    l = Heap::left(i);
-    r = Heap::right(i);
+    l = left(i);
+    r = right(i);
     if(l < heap_size + 1 && A[l]->key < A[i]->key) {
         smallest = l;
     }
@@ -134,9 +133,10 @@ void Heap::build_min_heap() {
     }
 }
 
-void Heap::set_heap(node B[]) {
+void Heap::set_heap(node* B[]) {
     for(int i = 1; i < heap_size + 1; ++i) {
-        *A[i] = B[i];
+        A[i] = B[i];
+        heap_ref[i] = A[i];
     }
 }
 
@@ -148,8 +148,8 @@ bool Heap::min_heap_verify() {
     bool is_min_heap = true;
     for(int i = (heap_size - 1)/2; i > 0; --i) {
         int l, r;
-        l = Heap::left(i);
-        r = Heap::right(i);
+        l = left(i);
+        r = right(i);
         if(A[i]->key > A[l]->key || A[i]->key > A[r]->key) {
             is_min_heap = false;
         }
@@ -161,8 +161,8 @@ bool Heap::min_heap_verify() {
 void Heap::print_heap() {
     for(int i = heap_size/2; i > 0; --i) {
         int l, r;
-        l = Heap::left(i);
-        r = Heap::right(i);
+        l = left(i);
+        r = right(i);
         if(l < heap_size + 1 && r < heap_size + 1) {
             printf("node: %i, key: %i, key left child: %i, key right child: %i\n", i, A[i]->key,  A[l]->key,  A[r]->key);
         }
@@ -248,68 +248,81 @@ void free_bool2D(bool** p, int size) {
 }
 
 void free_int2D(int** p, int size) {
-	for(int i = 0; i < size; ++i)
-		delete [] p[i];
+    for(int i = 0; i < size; ++i)
+        delete [] p[i];
 
-	delete [] p;
+    delete [] p;
 }
 
-void set_index_map(int size_graph, int* index_map, int* index_map_inverse, int* index_map_end, int s) {
-    index_map[0] = index_map_inverse[0] = index_map_end[0] = 0; //Point to zero for unused element
+int map_index2(int n, int index, int s) {
+    int r;
 
-    int index_track = 1;
-    for(int i = s; i <= size_graph; ++i) {
-        index_map[i] = index_track;
-        index_map_inverse[index_track] = i;
-        index_map_end[i] = 0;
-        index_track++;
+    if(index >= s) { r = index - s + 1; }
+    else { r = n - s + index + 1; }
+
+    return r;
+}
+
+int map_inverse(int n, int index, int s) {
+    int r;
+
+    r = s + index - 1;
+    if(r > n) {
+        r = r - n;
     }
-    for(int i = 1; i <= s - 1; ++i) {
-        index_map[i] = index_track;
-        index_map_inverse[index_track] = i;
-        index_map_end[i] = 0;
-        index_track++;
-    }
+
+    return r;
 }
 
 void populate_adj_and_weight_hr(int** adj_mat,
                                 int** weight_mat,
-                                node* heap,
+                                node** heap,
                                 int size_graph,
-                                int* index_map,
-                                int* index_map_inverse,
                                 std::vector<std::vector<int>>& edges,
                                 int s) {
 
-    int** elem_is_set = int2D(size_graph + 1);
-
     for(int i = 1; i < size_graph + 1; ++i) {
-        heap[i].key = INF;
-        heap[i].pi = NULL;
-        heap[i].index = i;
-        heap[i].index_og = index_map_inverse[i];
+        heap[i] = new node;
+        heap[i]->key = INF;
+        heap[i]->pi = NULL;
+        heap[i]->index = i;
+        heap[i]->index_og = map_inverse(size_graph, i, s);
     }
-    heap[1].key = 0;
+    heap[1]->key = 0;
 
+    //Traverse edges to set weight and adjacency matrices
     int num_edges = edges.size();
     for(int i = 0; i < num_edges; ++i) {
         int start_index = edges[i][0];
         int end_index = edges[i][1];
         int weight = edges[i][2];
 
-        int start = index_map[start_index];
-        int end = index_map[end_index];
-        heap[start].adj_nodes.push_back(end);
-        heap[end].adj_nodes.push_back(start);
+        int start = map_index2(size_graph, start_index, s);
+        int end = map_index2(size_graph, end_index, s);
 
-        if(elem_is_set[start][end] != SETVAR) {
-            weight_mat[start][end] = weight_mat[end][start] = weight;
-            elem_is_set[start][end] = elem_is_set[end][start] = SETVAR;
+        heap[start]->adj_nodes.push_back(end);
+        heap[end]->adj_nodes.push_back(start);
+
+        weight_mat[start][end] = weight;
+        weight_mat[end][start] = weight;
+
+        adj_mat[start][end] = SETVAR;
+        adj_mat[end][start] = SETVAR;
+    }
+
+    //Traverse edges once more to pick minimum weights
+    for(int i = 0; i < num_edges; ++i) {
+        int start_index = edges[i][0];
+        int end_index = edges[i][1];
+        int weight = edges[i][2];
+
+        int start = map_index2(size_graph, start_index, s);
+        int end = map_index2(size_graph, end_index, s);
+
+        if(weight_mat[start][end] >= weight) {
+            weight_mat[start][end] = weight;
+            weight_mat[end][start] = weight;
         }
-        else if(elem_is_set[start][end] == SETVAR && weight_mat[start][end] >= weight) {
-            weight_mat[start][end] = weight_mat[end][start] = weight;
-        }
-        adj_mat[start][end] = adj_mat[end][start] = SETVAR;
     }
 }
 
@@ -318,16 +331,13 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>>& edges, int
     std::vector<node> rs_S;
 
     //Set index maps
-    int* index_map = new int[n+1];
-    int* index_map_inverse = new int[n+1];
     int* index_map_end = new int[n+1];
-    set_index_map(n, index_map, index_map_inverse, index_map_end, s);
 
     //Initialize weight and adjacency matrices and heap
-    node* heap = new node[n + 1];
+    node** heap = new node*[n + 1];
     int** adj_mat = int2D(n + 1);
     int** weight_mat = int2D(n + 1);
-    populate_adj_and_weight_hr(adj_mat, weight_mat, heap, n, index_map, index_map_inverse, edges, s);
+    populate_adj_and_weight_hr(adj_mat, weight_mat, heap, n, edges, s);
 
     //Set heap and build heap
     Heap min_heap(n);
@@ -342,20 +352,11 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>>& edges, int
         node* u = min_heap.heap_extract_min();
         heap_size = min_heap.get_heap_size();
 
-        int u_index = u->index;
         int num_adj_nodes = u->adj_nodes.size();
-
         for(int i = 0; i < num_adj_nodes; ++i) {
             int it = u->adj_nodes[i];
-            node* v = min_heap.get_heap_element(it);
-            int v_index = v->index;
-
-            //Extracted nodes always point to node 1 in the heap,
-            //and the node at 1 may not be an adjacent node.
-            //Therefore adjacency must be verified with adj_mat.
-            if(adj_mat[u_index][v_index] == SETVAR) {
-                relax(u, v, weight_mat, &min_heap);
-            }
+            node* v = min_heap.heap_ref[it];
+            relax(u, v, weight_mat, &min_heap);
         }
 
         rs_S.push_back(*u);
@@ -381,8 +382,6 @@ std::vector<int> shortest_reach(int n, std::vector<std::vector<int>>& edges, int
     free_int2D(weight_mat, n + 1);
 
     delete [] heap;
-    delete [] index_map;
-    delete [] index_map_inverse;
     delete [] index_map_end;
 
     return rs_S_reordered;
