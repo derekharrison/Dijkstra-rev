@@ -13,9 +13,9 @@ int main(int argc, char* argv[])
 {
     int s = 2; //Start vertex. The minimum index for vertices is 1
     int n = 2499; //Number of vertices
+    int num_edges = 312500; //Number of edges
 
     //Create edges
-    int num_edges = 312500;
     std::vector<std::vector<int>> edges;
     for(int i = 0; i < num_edges; ++i) {
         int start_vert = rand() % n + 1;
