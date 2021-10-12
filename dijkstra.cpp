@@ -18,7 +18,7 @@ void relax(node* u, node* v, int** w, Heap* heap) {
     }
 }
 
-int map_index2(int n, int index, int s) {
+int map_index(int n, int index, int s) {
     int r;
 
     if(index >= s) { r = index - s + 1; }
@@ -61,8 +61,8 @@ void populate_adj_and_weight_hr(int** adj_mat,
         int end_index = edges[i][1];
         int weight = edges[i][2];
 
-        int start = map_index2(size_graph, start_index, s);
-        int end = map_index2(size_graph, end_index, s);
+        int start = map_index(size_graph, start_index, s);
+        int end = map_index(size_graph, end_index, s);
 
         heap[start]->adj_nodes.push_back(end);
         heap[end]->adj_nodes.push_back(start);
@@ -77,8 +77,8 @@ void populate_adj_and_weight_hr(int** adj_mat,
         int end_index = edges[i][1];
         int weight = edges[i][2];
 
-        int start = map_index2(size_graph, start_index, s);
-        int end = map_index2(size_graph, end_index, s);
+        int start = map_index(size_graph, start_index, s);
+        int end = map_index(size_graph, end_index, s);
 
         if(weight_mat[start][end] >= weight) {
             weight_mat[start][end] = weight;
