@@ -31,7 +31,7 @@ int map_index(int n, int index, int s) {
     int r;
 
     if(index >= s) { r = index - s + 1; }
-    else { r = index + n - 1; }
+    else { r = n - s + index + 1; }
 
     return r;
 }
@@ -40,8 +40,8 @@ int map_inverse(int n, int index, int s) {
     int r;
 
     r = s + index - 1;
-    if(index >= n) {
-        r = index - n + 1;
+    if(r > n) {
+        r = r - n;
     }
 
     return r;
