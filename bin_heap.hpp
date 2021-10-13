@@ -15,22 +15,29 @@ private:
     int heap_size;
     int size_array;
     node** A;
-    node** heap_ref;
     int* element_map;
 
+    int parent(int i);
+    int left(int i);
+    int right(int i);
+    void min_heapify(node* A[], int i);
+
 public:
+    node** heap_ref;
+
     Heap(int size);
     ~Heap();
+
     void set_heap(node* B[]);
     int get_heap_size();
     node* heap_extract_min();
     void heap_decrease_key(int index, double key);
+
     node* get_heap_element(int index);
     int get_root_index();
     void print_element_map();
     int get_heap_index(int index);
 
-    void min_heapify(node* A[], int i);
     void build_min_heap();
     bool min_heap_verify();
     void print_heap();

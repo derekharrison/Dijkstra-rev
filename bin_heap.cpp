@@ -5,11 +5,16 @@
  *      Author: d-w-h
  */
 
-#include <cstdlib>
 #include <iostream>
 #include <stdio.h>
+#include <math.h>
+#include <cstdlib>
+#include <stdlib.h>
+#include <time.h>
+#include <vector>
 
 #include "bin_heap.hpp"
+#include "memory.hpp"
 #include "user_types.hpp"
 
 Heap::Heap(int size) {
@@ -18,40 +23,36 @@ Heap::Heap(int size) {
     heap_ref = new node*[size+1];
     element_map = new int[size+1];
     size_array = size + 1;
-
     element_map[0] = 0;
     for(int i = 1; i <= heap_size; ++i) {
         element_map[i] = i;
         A[i] = new node;
         A[i]->pi = NULL;
+
     }
 }
 
 Heap::~Heap() {
-    for(int i = 1; i <= heap_size; ++i) {
-        delete A[i];
-        delete heap_ref[i];
-    }
-
     delete [] A;
     delete [] heap_ref;
     delete [] element_map;
 }
 
-int parent(int i) {
+int Heap::parent(int i) {
     return i/2;
 }
 
-int left(int i) {
+int Heap::left(int i) {
     return 2*i;
 }
 
-int right(int i) {
+int Heap::right(int i) {
     return 2*i + 1;
 }
 
 node* Heap::get_heap_element(int node_index) {
-    return heap_ref[node_index];
+    int index_in_heap = element_map[node_index];
+    return A[index_in_heap];
 }
 
 int Heap::get_heap_index(int node_index) {
@@ -65,8 +66,8 @@ int Heap::get_root_index() {
 
 void Heap::min_heapify(node* A[], int i) {
     int l, r, smallest;
-    l = left(i);
-    r = right(i);
+    l = Heap::left(i);
+    r = Heap::right(i);
     if(l < heap_size + 1 && A[l]->key < A[i]->key) {
         smallest = l;
     }
@@ -111,8 +112,8 @@ bool Heap::min_heap_verify() {
     bool is_min_heap = true;
     for(int i = (heap_size - 1)/2; i > 0; --i) {
         int l, r;
-        l = left(i);
-        r = right(i);
+        l = Heap::left(i);
+        r = Heap::right(i);
         if(A[i]->key > A[l]->key || A[i]->key > A[r]->key) {
             is_min_heap = false;
         }
@@ -124,8 +125,8 @@ bool Heap::min_heap_verify() {
 void Heap::print_heap() {
     for(int i = heap_size/2; i > 0; --i) {
         int l, r;
-        l = left(i);
-        r = right(i);
+        l = Heap::left(i);
+        r = Heap::right(i);
         if(l < heap_size + 1 && r < heap_size + 1) {
             printf("node: %i, key: %i, key left child: %i, key right child: %i\n", i, A[i]->key,  A[l]->key,  A[r]->key);
         }
@@ -163,7 +164,6 @@ void Heap::heap_decrease_key(int index, double key) {
     else {
         A[index]->key = key;
         while(index > 1 && A[parent(index)]->key > A[index]->key) {
-
             element_map[A[index]->index] = parent(index);
             element_map[A[parent(index)]->index] = index;
 
