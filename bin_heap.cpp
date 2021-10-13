@@ -51,8 +51,7 @@ int Heap::right(int i) {
 }
 
 node* Heap::get_heap_element(int node_index) {
-    int index_in_heap = element_map[node_index];
-    return A[index_in_heap];
+    return heap_ref[node_index];
 }
 
 int Heap::get_heap_index(int node_index) {

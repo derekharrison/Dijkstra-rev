@@ -114,7 +114,7 @@ void dijkstra(Heap* min_heap, int** weight_mat) {
         int num_adj_nodes = (int) u->adj_nodes.size();
         for(int i = 0; i < num_adj_nodes; ++i) {
             int it = u->adj_nodes[i];
-            node* v = min_heap->heap_ref[it];
+            node* v = min_heap->get_heap_element(it);
             relax(u, v, weight_mat, min_heap);
         }
     }
